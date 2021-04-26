@@ -71,6 +71,18 @@ contract PhotoNFTData is PhotoNFTDataStorages {
         photo.status = _newStatus;  
     }
 
+    /**
+     * @notice - Update photo price
+     */
+    function updatePrice(PhotoNFT _photoNFT, uint256 _photoPrice) public returns (bool) {
+        /// Identify photo's index
+        uint photoIndex = getPhotoIndex(_photoNFT);
+
+        /// Update metadata of a photoNFT of photo
+        Photo storage photo = photos[photoIndex];
+        photo.photoPrice = _photoPrice;
+    }
+
 
     ///-----------------
     /// Getter methods

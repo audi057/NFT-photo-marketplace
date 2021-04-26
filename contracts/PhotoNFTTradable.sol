@@ -53,8 +53,9 @@ contract PhotoNFTTradable {
     /**
      * @dev Opens a trade by the seller.
      */
-    function openTrade(PhotoNFT photoNFT, uint256 _photoId) public {
+    function openTrade(PhotoNFT photoNFT, uint256 _photoId, uint256 photoPrice) public {
         photoNFTData.updateStatus(photoNFT, "Open");
+        photoNFTData.updatePrice(photoNFT, photoPrice);
 
         Trade storage trade = trades[_photoId];
         require(

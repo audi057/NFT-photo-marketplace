@@ -10,6 +10,7 @@
     "console": "truffle console --network local",
     "migrate:local": "truffle migrate --reset --network local",
     "migrate:ropsten": "truffle migrate --reset --network ropsten",
+    "migrate:kovan": "truffle migrate --reset --network kovan",
     "migrate:rinkeby": "truffle migrate --reset --network rinkeby",
     "migrate:binancetest": "truffle migrate --reset --network binancetest",
     "migrate:bsc": "truffle migrate --reset --network bsc",

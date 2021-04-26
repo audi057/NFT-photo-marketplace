@@ -11,9 +11,13 @@ class Header extends Component {
   }
 
   connectWallet = async () => {
-    const accounts =  await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const account = this.minimize(accounts[0]);
-    this.setState({messageWallet: account});
+    try{
+      const accounts =  await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const account = this.minimize(accounts[0]);
+      this.setState({messageWallet: account});
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   minimize = (string) => {

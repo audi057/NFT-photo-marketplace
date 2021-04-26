@@ -1,7 +1,8 @@
 require('dotenv').config();
 
 const HDWalletProvider = require('@truffle/hdwallet-provider');  // @notice - Should use new module.
-const mnemonic = process.env.MNEMONIC;
+// const mnemonic = process.env.MNEMONIC;
+const mnemonic = 'margin evil bid clarify divorce shrimp over caution iron turn service accident';
 
 module.exports = {
   networks: {
@@ -25,7 +26,7 @@ module.exports = {
       skipDryRun: true,        // Skip dry run before migrations? (default: false for public nets)
     },
     kovan: {
-      provider: () => new HDWalletProvider(mnemonic, 'https://kovan.infura.io/v3/' + process.env.INFURA_KEY),
+      provider: () => new HDWalletProvider(mnemonic, 'https://kovan.infura.io/v3/bad8eca31ec64badbbe7489a92c03416'),
       network_id: '42',
       gas: 6465030,
       gasPrice: 5000000000, // 5 gwei

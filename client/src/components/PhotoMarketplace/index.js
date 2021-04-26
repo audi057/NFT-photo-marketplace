@@ -29,6 +29,7 @@ export default class PhotoMarketplace extends Component {
             ["Bitcoin"],
             ["Ethereum"]
           ],
+          searchWord:''
         };
 
         //this.handlePhotoNFTAddress = this.handlePhotoNFTAddress.bind(this);
@@ -156,7 +157,6 @@ export default class PhotoMarketplace extends Component {
             // Use web3 to get the user's accounts.
             const accounts = await web3.eth.getAccounts();
             const currentAccount = accounts[0];
-
             // Get the contract instance.
             const networkId = await web3.eth.net.getId();
             const networkType = await web3.eth.net.getNetworkType();
@@ -245,21 +245,38 @@ export default class PhotoMarketplace extends Component {
       this.setState({ valuePhotoCategory: event.target.value });
     }
 
+
+    handleSearch = (event) => {
+      this.setState({ searchWord: event.target.value });
+    }
     // handleAccountClick = (val, event) => {
     //   event.preventDefault();
     // }
 
     render() {
-        const { web3, allPhotos, currentAccount, valuePhotoCategory } = this.state;
+        const { web3, allPhotos, currentAccount, valuePhotoCategory, searchWord } = this.state;
         return (
             <div className={styles.contracts}>
               <h2>NFT based Photo MarketPlace</h2>
-              <Field label="Category">
-                <Select
-                  onChange={this.handlePhotoCategory}
-                  items={this.state.optionCategories}
-                />
-              </Field>
+              <div>
+                <Field label="Category">
+                  <Select
+                    onChange={this.handlePhotoCategory}
+                    items={this.state.optionCategories}
+                  />
+                </Field>
+                <Field label="">
+                    <Input
+                        type="text"
+                        width={1}
+                        placeholder="search"
+                        required={true}
+                        value={ searchWord }
+                        onChange={ this.handleSearch }
+                    />
+                </Field>
+              </div>
+              
               { allPhotos.map((photo, key) => {
                 var metaData = photo.photoMeta.split("::");
 
@@ -267,7 +284,12 @@ export default class PhotoMarketplace extends Component {
                   <div key={key} className="">
                     <div className={styles.widgets}>
 
-                        { (valuePhotoCategory == 'All'&& photo.status == "Open") || (metaData[0] == valuePhotoCategory&&photo.status == "Open") ?
+                      { (
+                         metaData[0].toLowerCase().indexOf(searchWord.toLowerCase())!=-1
+                        || metaData[2].toLowerCase().indexOf(searchWord.toLowerCase())!=-1
+                        || photo.ownerAddress.toLowerCase().indexOf(searchWord.toLowerCase())!=-1)
+                        && ((valuePhotoCategory == 'All'&& photo.status == "Open") || 
+                          (metaData[0] == valuePhotoCategory&&photo.status == "Open")) ?
                             <Card width={"360px"}
                                   maxWidth={"360px"}
                                   mx={"auto"} 

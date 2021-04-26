@@ -22,7 +22,8 @@ export default class MyPhotos extends Component {
           route: window.location.pathname.replace("/", ""),
 
           /////// NFT
-          allPhotos: []
+          allPhotos: [],
+          searchWord: ''
         };
 
         //this.handlePhotoNFTAddress = this.handlePhotoNFTAddress.bind(this);
@@ -42,10 +43,11 @@ export default class MyPhotos extends Component {
     ///---------------------------------------------------------
     /// Functions put a photo NFT on sale or cancel it on sale 
     ///---------------------------------------------------------
-    putOnSale = async (address) => {
+    putOnSale = async (address, photoPrice) => {
         const { web3, accounts, photoNFTMarketplace, photoNFTData, PHOTO_NFT_MARKETPLACE } = this.state;
 
         console.log('=== value of putOnSale ===', address);
+        console.log('=== value of photoPrice ===', photoPrice);
         console.log('=== PHOTO_NFT_MARKETPLACE ===', PHOTO_NFT_MARKETPLACE);
 
         const PHOTO_NFT = address;
@@ -62,7 +64,7 @@ export default class MyPhotos extends Component {
             
         /// Put on sale (by a seller who is also called as owner)
         const txReceipt1 = await photoNFT.methods.approve(PHOTO_NFT_MARKETPLACE, photoId).send({ from: accounts[0] });
-        const txReceipt2 = await photoNFTMarketplace.methods.openTrade(PHOTO_NFT, photoId).send({ from: accounts[0] });
+        const txReceipt2 = await photoNFTMarketplace.methods.openTrade(PHOTO_NFT, photoId, photoPrice).send({ from: accounts[0] });
         console.log('=== response of openTrade ===', txReceipt2);
     }
 
@@ -238,20 +240,60 @@ export default class MyPhotos extends Component {
         }
     }
 
+    changePhotoPrice = (event, key) => {
+      const { web3 } = this.state;
+      var allPhotos = this.state.allPhotos;
+      // var new_val = allPhotos;
+      var new_val = [];
+      for (let i = 0; i < allPhotos.length; i++) {
+        var temp_val = {};
+        for (const key in allPhotos[i]) {
+          if (Object.hasOwnProperty.call(allPhotos[i], key)) {
+            temp_val[key] = allPhotos[i][key];
+          }
+        }
+        new_val.push(temp_val);
+      }
+
+      new_val[key]['photoPrice'] = web3.utils.toWei(`${event.target.value}`, 'ether');
+      // console.log(Object.isFrozen(new_val));
+      // console.log(new_val);
+      this.setState({allPhotos: new_val});
+    }
+
+    handleSearch = (event) => {
+      this.setState({ searchWord: event.target.value });
+    }
+
     render() {
-        const { web3, allPhotos, currentAccount } = this.state;
+        const { web3, allPhotos, currentAccount, searchWord} = this.state;
 
         return (
             <div className={styles.contracts}>
               <h2>My Photos</h2>
-
+              
+              <Field label="">
+                    <Input
+                        type="text"
+                        width={1}
+                        placeholder="search"
+                        required={true}
+                        value={ searchWord }
+                        onChange={ this.handleSearch }
+                    />
+                </Field>
+              
               { allPhotos.map((photo, key) => {
                 // var metaData = photo.photoMeta.split("::");
+
                 return (
                   <div key={key} className="">
                     <div className={styles.widgets}>
 
-                        { currentAccount == photo.ownerAddress ? 
+                        { (
+                          photo.photoNFTName.toLowerCase().indexOf(searchWord.toLowerCase())!=-1 
+                          || photo.ownerAddress.toLowerCase().indexOf(searchWord.toLowerCase())!=-1)
+                        && currentAccount == photo.ownerAddress ? 
                             <Card width={"360px"} 
                                     maxWidth={"360px"} 
                                     mx={"auto"} 
@@ -270,8 +312,13 @@ export default class MyPhotos extends Component {
                               <span style={{ padding: "20px" }}></span>
 
                               <p>Photo Name: { photo.photoNFTName }</p>
-
-                              <p>Price: { web3.utils.fromWei(`${photo.photoPrice}`, 'ether') } ETH</p>
+                              { photo.status == "Cancelled" ? 
+                                <span>Price (ETH):<Input value={ web3.utils.fromWei(`${photo.photoPrice}`, 'ether') } type="number" onChange={(e) => this.changePhotoPrice(e, key)} size="sm" /></span>
+                                :
+                                <p>Price: { web3.utils.fromWei(`${photo.photoPrice}`, 'ether') } ETH</p>
+                              }
+                               
+                              
 
                               {/* <p>Category: { metaData[0] }</p>
                               <p>Photo Description: { metaData[2] }</p> */}
@@ -281,7 +328,7 @@ export default class MyPhotos extends Component {
                               <br />
 
                               { photo.status == "Cancelled" ? 
-                                  <Button size={'medium'} width={1} value={ photo.photoNFT } onClick={() => this.putOnSale(photo.photoNFT)}> Put on sale </Button>
+                                  <Button size={'medium'} width={1} value={ photo.photoNFT } onClick={() => this.putOnSale(photo.photoNFT, photo.photoPrice)}> Put on sale </Button>
                               :
                                   <Button size={'medium'} width={1} value={ photo.photoNFT } onClick={() => this.cancelOnSale(photo.photoNFT)}> Cancel on sale </Button>
                               }
